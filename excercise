@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Create directories if they don't exist
+mkdir -p deployPackage/added
+mkdir -p deployPackage/removed
+
+# Loop through each line in file_diff.txt
+while IFS= read -r line; do
+    # Extract file name and status
+    file=$(echo "$line" | cut -d ' ' -f 2)
+    status=$(echo "$line" | cut -d ' ' -f 1)
+
+    # Extract just the file name without path
+    file_name=$(basename "$file")
+
+    # If status is modified or added, copy/move file to deployPackage/added
+    if [ "$status" = "M" ] || [ "$status" = "A" ]; then
+        cp "$file" "deployPackage/added/$file_name"
+        # Or use mv command to move instead of cp if moving is preferred
+        # mv "$file" "deployPackage/added/$file_name"
+    fi
+
+    # If status is rename or delete, copy/move file to deployPackage/removed
+    if [ "$status" = "R" ] || [ "$status" = "D" ]; then
+        cp "$file" "deployPackage/removed/$file_name"
+        # Or use mv command to move instead of cp if moving is preferred
+        # mv "$file" "deployPackage/removed/$file_name"
+    fi
+done < file_diff.txt
